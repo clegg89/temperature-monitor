@@ -1,5 +1,5 @@
 /*
- * @file secrets.cpp
+ * @file wifi-information.cpp
  *
  * @author C. Smith
  *
@@ -8,17 +8,15 @@
  * directory. It contains the SSID and Password of the WiFi network
  * the ESP8266 will attempt to join.
  */
-#include "secrets.h"
 
-static const String ssid = "$ssid";
-static const String password = "$password";
+#include "wifi-information.hpp"
 
-String getSSID()
+String WifiInformation::ssid() const
 {
-  return ssid;
+  return "$ssid";
 }
 
-String getPassword()
+String WifiInformation::password() const
 {
-  return password;
+  return "$password";
 }

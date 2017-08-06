@@ -10,7 +10,7 @@
 #include <DHT.h>
 #include <DHT_U.h>
 
-#include <secrets.h>
+#include "wifi-information.hpp"
 
 static DHT_Unified g_dht(D4, DHT11);
 
@@ -22,8 +22,9 @@ void initDhtSensor(DHT_Unified& dht);
 
 void setup()
 {
+  const WifiInformation& wifiInfo = WifiInformation::instance();
   initSerialPort(Serial);
-  initWifi(WiFi, getSSID(), getPassword());
+  initWifi(WiFi, wifiInfo.ssid(), wifiInfo.password());
   initDhtSensor(g_dht);
 }
 

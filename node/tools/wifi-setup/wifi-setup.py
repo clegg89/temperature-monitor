@@ -22,18 +22,20 @@ if __name__ == "__main__":
     parser.add_argument('-p','--password',dest='password',help='The password to join your network')
     args = parser.parse_args()
 
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+
     if not args.ssid:
         args.ssid = input('Please enter your WiFi SSID: ')
 
     if not args.password:
         args.password = getpass.getpass('Please enter your WiFi password: ')
 
-    outputFilePath = os.path.realpath('../../lib/secrets/secrets.cpp')
+    outputFilePath = os.path.realpath(script_dir + '/../../src/wifi-information.cpp')
 
     if os.path.exists(outputFilePath):
         os.remove(outputFilePath)
 
-    with open('secrets.cpp.in', 'r') as inputFile:
+    with open(script_dir + '/wifi-information.cpp.in', 'r') as inputFile:
         inputRaw = inputFile.read()
         template = Template(inputRaw)
         outputRaw = template.substitute(ssid=args.ssid,password=args.password)
