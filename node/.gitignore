@@ -3,4 +3,3 @@
 .clang_complete
 .gcc-flags.json
 src/wifi-information.cpp
-src/ca-certificate.c

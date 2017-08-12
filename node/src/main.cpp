@@ -12,46 +12,11 @@
 #include <time.h>
 
 #include "wifi-information.hpp"
-
-/*
- * TODO I'm not fond of this solution. It will work for now.
- *
- * These are binary representations of the Root CA certificate and it's
- * length (the Root CA is required, and should be self-signed). To obtain
- * the Root CA, use openssl to find the issure of the last Certificate in
- * the chain sent by the client:
- *    
- *    openssl s_client -showcerts -connect ${SERVERNAME}:${SERVERPORT} < /dev/null 2> /dev/null | \
- *      openssl x509 -noout -text
- *
- * The issuer of the last certificate should be the Root CA. For example
- * "Addtrust External CA Root." The certificate should be somewhere on your
- * system (location will vary). You can typically export it from your browser
- * in some fashion. You will want to get the certificate into DER form. If it
- * is in PEM format you can use the following command:
- *
- *    openssl x509 -in ${ROOTCA}.pem -out ${ROOTCA}.der -outform DER
- *
- * Finally you can create a C file which will contain the array and length
- * using xxd -i:
- *
- *    xxd -i ${ROOTCA}.der > ca-certificate.c
- *
- * Change the name of the array and length to the names below and place
- * the file in the src directory (same directory as this file).
- *
- * Possible future improvements:
- *   - Automating at least a portion of the process. It would be difficult
- *     to automate obtaining the Root CA as that varies based on browser
- *     and system.
- *   - Using SPIFFS to store the CA certificate, allowing for certificate
- *     updates without the need to upgrade the entire firmware.
- */
-extern const unsigned char ca_certificate[];
-extern const uint32_t ca_certificate_len;
+#include "root-ca.hpp"
+#include "verified-wifi-client.hpp"
 
 static DHT_Unified g_dht(D4, DHT11);
-static WiFiClientSecure g_client;
+static VerifiedWifiClient g_client(RootCaCertificate);
 
 void initSerialPort(HardwareSerial& serial, const bool enableDebug);
 void initWifi(ESP8266WiFiClass& wifi,
@@ -86,14 +51,6 @@ void setup()
   gmtime_r(&now, &timeinfo);
   Serial.print("Current time: ");
   Serial.println(asctime(&timeinfo));
-
-  Serial.println("Set CA Cert");
-  if (!g_client.setCACert(ca_certificate, ca_certificate_len ))
-  {
-    Serial.println("Failed to load CA certificate");
-    while(true) yield();
-  }
-  Serial.println("CA Cert set");
 }
 
 void loop()
@@ -106,16 +63,6 @@ void loop()
   if(!g_client.connect(host, port))
   {
     Serial.println("Connection failed");
-    return;
-  }
-
-  if(g_client.verifyCertChain(host))
-  {
-    Serial.println("Server certificate verified");
-  }
-  else
-  {
-    Serial.println("ERROR: certificate verification failed!");
     return;
   }
 
