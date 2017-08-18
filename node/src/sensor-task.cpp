@@ -6,6 +6,8 @@
 
 #include "sensor-task.hpp"
 
+#include <ArduinoJson.hpp>
+
 namespace app
 {
 
@@ -60,6 +62,41 @@ void SensorTask::OnStop()
 
 void SensorTask::OnUpdate(uint32_t deltaTime)
 {
+  ArduinoJson::StaticJsonBuffer<200> jsonBuffer;
+  ArduinoJson::JsonObject& jsonObj = jsonBuffer.createObject();
+  sensors_event_t tempEvent, humidityEvent;
+  String result;
+
+  m_dht.temperature().getEvent(&tempEvent);
+  m_dht.humidity().getEvent(&humidityEvent);
+
+  if(!isnan(tempEvent.temperature))
+  {
+    Serial.print("Temperature: ");
+    Serial.print(tempEvent.temperature);
+    Serial.println(" *C");
+
+    jsonObj["temperature"] = tempEvent.temperature;
+  }
+  else
+  {
+    Serial.println("Error reading temperature!");
+  }
+
+  if(!isnan(tempEvent.relative_humidity))
+  {
+    Serial.print("Humidity: ");
+    Serial.print(tempEvent.relative_humidity);
+    Serial.println("%");
+
+    jsonObj["humidity"] = tempEvent.relative_humidity;
+  }
+  else
+  {
+    Serial.println("Error reading humidity!");
+  }
+
+  jsonObj.printTo(result);
 }
 
 }
