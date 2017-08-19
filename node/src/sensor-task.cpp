@@ -11,9 +11,11 @@
 namespace app
 {
 
-SensorTask::SensorTask(
-    const uint8_t pin, const uint8_t type, const uint32_t timeInterval)
-  : Task(timeInterval), m_dht(pin ,type)
+SensorTask::SensorTask(const uint8_t pin,
+                       const uint8_t type,
+                       const std::shared_ptr<NetworkQueue>& queue,
+                       const uint32_t timeInterval)
+  : Task(timeInterval), m_queue(queue), m_dht(pin ,type)
 {
 }
 
@@ -97,6 +99,11 @@ void SensorTask::OnUpdate(uint32_t deltaTime)
   }
 
   jsonObj.printTo(result);
+
+  while(!m_queue->enqueue(result))
+  {
+    m_queue->dequeue();
+  }
 }
 
 }
