@@ -109,8 +109,6 @@ void NetworkHealthTask::connectWifi()
 
     Serial.print("Connecting to ");
     Serial.print(info.ssid);
-    Serial.print(" : ");
-    Serial.println(info.password);
 
     while(WiFi.status() != WL_CONNECTED &&
           count++ < failureCount)
