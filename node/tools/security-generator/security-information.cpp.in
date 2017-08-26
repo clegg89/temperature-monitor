@@ -1,0 +1,24 @@
+/*
+ * @file security-information.cpp
+ *
+ * @author C. Smith
+ *
+ * @description
+ * This file is generated from the security-generator.py script
+ * in the tools directory.
+ */
+
+#include "security-information.hpp"
+
+namespace app
+{
+
+const SecurityInformation g_securityInformation =
+{
+  $dataKey,
+  $ivKey,
+  $staticIv,
+  $hashKey
+};
+
+}
