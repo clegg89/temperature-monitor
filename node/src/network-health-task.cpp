@@ -86,12 +86,12 @@ void NetworkHealthTask::OnUpdate(uint32_t deltaTime)
     Serial.println("WiFi disconnected. Reconnect.");
     connectWifi();
   }
-  else if(!m_wifiClient.connected())
+  if(!m_wifiClient.connected())
   {
     Serial.println("Client disconnected. Reconnect.");
     connectNetwork();
   }
-  else if(!m_mqttClient->isConnected())
+  if(!m_mqttClient->isConnected())
   {
     Serial.println("MQTT disconnected. Reconnect.");
     connectMqtt();
@@ -108,7 +108,7 @@ void NetworkHealthTask::connectWifi()
     WiFi.begin(info.ssid.c_str(), info.password.c_str());
 
     Serial.print("Connecting to ");
-    Serial.print(info.ssid);
+    Serial.println(info.ssid);
 
     while(WiFi.status() != WL_CONNECTED &&
           count++ < failureCount)
@@ -156,7 +156,7 @@ void NetworkHealthTask::connectMqtt()
   options.MQTTVersion = 4;
   options.clientID.cstring = const_cast<char*>(m_mqttClientId.c_str());
   options.cleansession = true;
-  options.keepAliveInterval = 30; // seconds
+  options.keepAliveInterval = 65; // seconds
   options.username.cstring = const_cast<char*>(g_brokerInformation.username.c_str());
   options.password.cstring = const_cast<char*>(g_brokerInformation.password.c_str());
 
@@ -168,6 +168,10 @@ void NetworkHealthTask::connectMqtt()
   {
     Serial.print("Error connecting to broker: ");
     Serial.println(result);
+  }
+  else
+  {
+    Serial.println("Connection succeeded");
   }
 }
 
