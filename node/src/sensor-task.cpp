@@ -21,7 +21,7 @@ SensorTask::SensorTask(const uint8_t pin,
 
 bool SensorTask::OnStart()
 {
-  int32_t taskInterval = TaskTimeToMs(getTimeInterval());
+  int32_t taskInterval = TaskTimeToUs(getTimeInterval());
 
   m_dht.begin();
 
@@ -53,7 +53,7 @@ bool SensorTask::OnStart()
 
   taskInterval = (taskInterval > sensor.min_delay) ? taskInterval : sensor.min_delay;
 
-  setTimeInterval(taskInterval);
+  setTimeInterval(UsToTaskTime(taskInterval));
 
   return true;
 }
@@ -67,10 +67,13 @@ void SensorTask::OnUpdate(uint32_t deltaTime)
   ArduinoJson::StaticJsonBuffer<200> jsonBuffer;
   ArduinoJson::JsonObject& jsonObj = jsonBuffer.createObject();
   sensors_event_t tempEvent, humidityEvent;
+  bool error = false;
   String result;
 
   m_dht.temperature().getEvent(&tempEvent);
   m_dht.humidity().getEvent(&humidityEvent);
+
+  Serial.println("Take sensor measurements");
 
   if(!isnan(tempEvent.temperature))
   {
@@ -83,6 +86,7 @@ void SensorTask::OnUpdate(uint32_t deltaTime)
   else
   {
     Serial.println("Error reading temperature!");
+    error = true;
   }
 
   if(!isnan(tempEvent.relative_humidity))
@@ -96,6 +100,12 @@ void SensorTask::OnUpdate(uint32_t deltaTime)
   else
   {
     Serial.println("Error reading humidity!");
+    error = true;
+  }
+
+  if(error)
+  {
+    return;
   }
 
   jsonObj.printTo(result);

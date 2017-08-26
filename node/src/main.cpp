@@ -10,32 +10,55 @@
 
 #include "led-task.hpp"
 #include "network-health-task.hpp"
+#include "network-messaging-task.hpp"
 #include "sensor-task.hpp"
 #include "network-queue.hpp"
+#include "wifi-information.hpp"
 
-static app::LedTask ledTask(BUILTIN_LED, MsToTaskTime(1000));
-static app::NetworkHealthTask networkHealthTask(MsToTaskTime(100));
-static app::SensorTask sensorTask(
-    D3,
-    DHT11,
-    std::make_shared<app::NetworkQueue>(),
-    MsToTaskTime(1000)); // TODO make 1 minute
+static app::LedTask* ledTask;
+static app::NetworkHealthTask* networkHealthTask;
+static app::NetworkMessagingTask* networkMessagingTask;
+static app::SensorTask* sensorTask;
 static TaskManager taskManager;
 
 void initSerialPort(HardwareSerial& serial, const bool enableDebug);
 
 void setup()
 {
+  const uint32_t msPerMinute = (1000 * 60);
+  const uint32_t ledTaskPeriod = MsToTaskTime(1000);
+  const uint32_t networkHealthTaskPeriod = MsToTaskTime(100);
+  const uint32_t sensorTaskPeriod = MsToTaskTime(msPerMinute);
+  const uint32_t networkMessaginTaskPeriod = sensorTaskPeriod/2;
+
+  std::shared_ptr<app::NetworkQueue> networkQueue(std::make_shared<app::NetworkQueue>());
+
   initSerialPort(Serial, false);
 
-  taskManager.StartTask(&ledTask);
-  taskManager.StartTask(&sensorTask);
-  taskManager.StartTask(&networkHealthTask);
+  ledTask = new app::LedTask(BUILTIN_LED, ledTaskPeriod);
+  networkHealthTask = new app::NetworkHealthTask(networkHealthTaskPeriod);
+  networkMessagingTask = new app::NetworkMessagingTask(
+      networkHealthTask->client(), networkQueue, networkMessaginTaskPeriod);
+  sensorTask = new app::SensorTask(D3, DHT11, networkQueue, sensorTaskPeriod);
+
+  taskManager.StartTask(ledTask);
+  taskManager.StartTask(sensorTask);
+  taskManager.StartTask(networkHealthTask);
+  taskManager.StartTask(networkMessagingTask);
 }
 
 void loop()
 {
   taskManager.Loop();
+}
+
+/* Never called */
+void teardown()
+{
+  delete sensorTask;
+  delete networkHealthTask;
+  delete networkMessagingTask;
+  delete ledTask;
 }
 
 void initSerialPort(HardwareSerial& serial, const bool enableDebug)

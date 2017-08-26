@@ -8,25 +8,19 @@
 #define _WIFI_INFORMATION_HPP_
 
 #include <Arduino.h>
+#include <vector>
 
-class WifiInformation
+namespace app
 {
-  public:
 
-    static const WifiInformation& instance()
-    {
-      static WifiInformation singleton;
-      return singleton;
-    }
-
-    String ssid() const;
-    String password() const;
-
-  private:
-
-    WifiInformation() = default;
-    WifiInformation(const WifiInformation&) = delete;
-    WifiInformation& operator=(const WifiInformation&) = delete;
+struct WifiInformation
+{
+  const String ssid;
+  const String password;
 };
+
+extern const std::vector<app::WifiInformation> g_wifiNetworks;
+
+}
 
 #endif /* _WIFI_INFORMATION_HPP_ */

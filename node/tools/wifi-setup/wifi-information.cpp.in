@@ -11,12 +11,12 @@
 
 #include "wifi-information.hpp"
 
-String WifiInformation::ssid() const
+namespace app
 {
-  return "$ssid";
-}
 
-String WifiInformation::password() const
+const std::vector<WifiInformation> g_wifiNetworks =
 {
-  return "$password";
+  { "$ssid", "$password" }
+};
+
 }

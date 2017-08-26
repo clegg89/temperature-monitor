@@ -1,0 +1,25 @@
+/*
+ * @file mqtt-broker-information.cpp
+ *
+ * @author C. Smith
+ *
+ * @description
+ * This file is generated from the mqtt-setup.py script in the tools
+ * directory. It contains the hostname, port, username, and password
+ * for the MQTT broker that the application should use.
+ */
+
+#include "mqtt-broker-information.hpp"
+
+namespace app
+{
+
+const MqttBrokerInformation g_brokerInformation =
+{
+  "$hostname",
+  $port,
+  "$username",
+  "$password"
+};
+
+}
