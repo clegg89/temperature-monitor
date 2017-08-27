@@ -13,14 +13,43 @@ The main application
 import paho.mqtt.client as paho
 import ssl
 import os
+import binascii
 from security_information import APP_KEYS
 from mqtt_broker_information import MQTT_INFORMATION
+from Crypto.Cipher import AES
+from Crypto.Hash import SHA256, HMAC
+from hmac import compare_digest
+import json
 
 def on_connect(mosq, objc, flags, rc):
     print("rc: " + str(rc))
 
 def on_message(mosq, obj, msg):
-    print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
+    keys = APP_KEYS
+
+    data = msg.payload.decode('utf-8').split(',')
+
+    encryptedIv = binascii.unhexlify(data[0])
+    cipherText = binascii.unhexlify(data[1])
+    signature = data[2].lower()
+
+    ivCipher = AES.new(APP_KEYS['ivKey'], AES.MODE_CBC, APP_KEYS['staticIv'])
+    iv = ivCipher.decrypt(encryptedIv)
+
+    dataCipher = AES.new(APP_KEYS['dataKey'], AES.MODE_CBC, iv)
+    data = dataCipher.decrypt(cipherText)
+    plainText = data.decode('utf-8')
+
+    fullMessage = bytearray(iv) + bytearray(data)
+    hmac = HMAC.new(APP_KEYS['hashKey'], fullMessage, SHA256)
+    if compare_digest(signature,hmac.hexdigest()):
+        results = json.loads(plainText)
+        print("Temperature: " + str(results['temperature']))
+        print("Humidity: " + str(results['humidity']))
+    else:
+        print("Signature failed")
+        print(signature)
+        print(hmac.hexdigest())
 
 def on_publish(mosq, obj, mid):
     print("mid: " + str(mid))
