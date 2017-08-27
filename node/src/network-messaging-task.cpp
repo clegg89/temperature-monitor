@@ -71,7 +71,7 @@ void NetworkMessagingTask::OnUpdate(uint32_t deltaTime)
       message.dup = false;
       message.payload = reinterpret_cast<void*>(
                           const_cast<char*>(msgString.c_str()));
-      message.payloadLen = msgString.length() + 1;
+      message.payloadLen = msgString.length();
 
       rc = m_client->publish("monitor", message);
       if(rc != MqttClient::Error::SUCCESS)
