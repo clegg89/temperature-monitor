@@ -39,10 +39,10 @@ class InputTemplate:
 
         if fileType == '.cpp':
             self.fileType = 'c'
-            middle = 'node/src'
+            middle = 'firmware/src'
         elif fileType == '.py':
             self.fileType = 'python'
-            middle = 'host'
+            middle = 'middleware'
         else:
             print('Unrecognized file type: ' + fileType)
             raise
@@ -55,11 +55,11 @@ class InputTemplate:
         newMap['port'] = mapping['port']
 
         if self.fileType == 'c':
-            newMap['username'] = mapping['node_username']
-            newMap['password'] = mapping['node_password']
+            newMap['username'] = mapping['firmware_username']
+            newMap['password'] = mapping['firmware_password']
         elif self.fileType == 'python':
-            newMap['username'] = mapping['host_username']
-            newMap['password'] = mapping['host_password']
+            newMap['username'] = mapping['middleware_username']
+            newMap['password'] = mapping['middleware_password']
         else:
             raise
 
@@ -77,18 +77,18 @@ if __name__ == "__main__":
     if not args.hostname:
         args.hostname = input('Please enter the Broker hostname: ')
 
-    host_username = input('Please enter the username for the host application: ')
-    host_password = getpass.getpass('Please enter the password for the host application: ')
-    node_username = input('Please enter the username for the node application: ')
-    node_password = getpass.getpass('Please enter the password for the node application: ')
+    middleware_username = input('Please enter the username for the middleware application: ')
+    middleware_password = getpass.getpass('Please enter the password for the host application: ')
+    firmware_username = input('Please enter the username for the firmware application: ')
+    firmware_password = getpass.getpass('Please enter the password for the firmware application: ')
 
     mapping = {
             'hostname' : args.hostname,
             'port' : args.port,
-            'host_username' : host_username,
-            'host_password' : host_password,
-            'node_username' : node_username,
-            'node_password' : node_password
+            'middleware_username' : middleware_username,
+            'middleware_password' : middleware_password,
+            'firmware_username' : firmware_username,
+            'firmware_password' : firmware_password
             }
 
     script_dir = os.path.dirname(os.path.realpath(__file__))

@@ -54,10 +54,10 @@ class InputTemplate:
 
         if fileType == '.cpp':
             self.fileType = 'c'
-            middle = 'node/src'
+            middle = 'firmware/src'
         elif fileType == '.py':
             self.fileType = 'python'
-            middle = 'host'
+            middle = 'middleware'
         else:
             print('Unrecognized file type: ' + fileType)
             raise
