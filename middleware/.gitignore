@@ -1,3 +1,4 @@
 __pycache__
 security_information.py
 mqtt_broker_information.py
+influxdb_information.py
