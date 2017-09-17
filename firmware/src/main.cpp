@@ -21,7 +21,7 @@ static app::NetworkMessagingTask* networkMessagingTask;
 static app::SensorTask* sensorTask;
 static TaskManager taskManager;
 
-void initSerialPort(HardwareSerial& serial, const bool enableDebug);
+static void initSerialPort(HardwareSerial& serial, const bool enableDebug);
 
 void setup()
 {
@@ -61,7 +61,7 @@ void teardown()
   delete ledTask;
 }
 
-void initSerialPort(HardwareSerial& serial, const bool enableDebug)
+static void initSerialPort(HardwareSerial& serial, const bool enableDebug)
 {
   serial.begin(115200);
   serial.setDebugOutput(enableDebug);
