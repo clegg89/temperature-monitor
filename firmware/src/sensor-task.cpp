@@ -11,47 +11,31 @@
 namespace app
 {
 
-SensorTask::SensorTask(const uint8_t pin,
-                       const uint8_t type,
+SensorTask::SensorTask(const uint8_t sdaPin,
+                       const uint8_t sclPin,
                        const std::shared_ptr<NetworkQueue>& queue,
                        const uint32_t timeInterval)
-  : Task(timeInterval), m_queue(queue), m_dht(pin ,type)
+  : Task(timeInterval), m_queue(queue)
 {
+  Wire.begin(sdaPin, sclPin);
 }
 
 bool SensorTask::OnStart()
 {
-  int32_t taskInterval = TaskTimeToUs(getTimeInterval());
+  int32_t taskInterval = TaskTimeToMs(getTimeInterval());
 
-  m_dht.begin();
+  while (!m_sensor.begin())
+  {
+    Serial.println("ERROR Initializing BME280");
+    delay(1000);
+  }
 
-  Serial.println("DHT Initialized");
+  Serial.println("BME280 Initialized");
 
-  // Print temperature sensor details.
-  sensor_t sensor;
-  m_dht.temperature().getSensor(&sensor);
-  Serial.println("------------------------------------");
-  Serial.println("Temperature");
-  Serial.print  ("Sensor:       "); Serial.println(sensor.name);
-  Serial.print  ("Driver Ver:   "); Serial.println(sensor.version);
-  Serial.print  ("Unique ID:    "); Serial.println(sensor.sensor_id);
-  Serial.print  ("Max Value:    "); Serial.print(sensor.max_value); Serial.println(" *C");
-  Serial.print  ("Min Value:    "); Serial.print(sensor.min_value); Serial.println(" *C");
-  Serial.print  ("Resolution:   "); Serial.print(sensor.resolution); Serial.println(" *C");  
-  Serial.println("------------------------------------");
-  // Print humidity sensor details.
-  m_dht.humidity().getSensor(&sensor);
-  Serial.println("------------------------------------");
-  Serial.println("Humidity");
-  Serial.print  ("Sensor:       "); Serial.println(sensor.name);
-  Serial.print  ("Driver Ver:   "); Serial.println(sensor.version);
-  Serial.print  ("Unique ID:    "); Serial.println(sensor.sensor_id);
-  Serial.print  ("Max Value:    "); Serial.print(sensor.max_value); Serial.println("%");
-  Serial.print  ("Min Value:    "); Serial.print(sensor.min_value); Serial.println("%");
-  Serial.print  ("Resolution:   "); Serial.print(sensor.resolution); Serial.println("%");  
-  Serial.println("------------------------------------");
+  /* Let sensor boot */
+  delay(100);
 
-  taskInterval = (taskInterval > sensor.min_delay) ? taskInterval : sensor.min_delay;
+  taskInterval = (taskInterval > 1000) ? taskInterval : 1000;
 
   setTimeInterval(UsToTaskTime(taskInterval));
 
@@ -66,47 +50,27 @@ void SensorTask::OnUpdate(uint32_t deltaTime)
 {
   ArduinoJson::StaticJsonBuffer<200> jsonBuffer;
   ArduinoJson::JsonObject& jsonObj = jsonBuffer.createObject();
-  sensors_event_t tempEvent, humidityEvent;
   bool error = false;
+  float temperature;
+  float humidity;
   String result;
 
-  m_dht.temperature().getEvent(&tempEvent);
-  m_dht.humidity().getEvent(&humidityEvent);
+  temperature = m_sensor.readTemperature();
+  humidity = m_sensor.readHumidity();
 
   Serial.println("Take sensor measurements");
 
-  if(!isnan(tempEvent.temperature))
-  {
-    Serial.print("Temperature: ");
-    Serial.print(tempEvent.temperature);
-    Serial.println(" *C");
+  Serial.print("Temperature: ");
+  Serial.print(temperature);
+  Serial.println(" *C");
 
-    jsonObj["temperature"] = tempEvent.temperature;
-  }
-  else
-  {
-    Serial.println("Error reading temperature!");
-    error = true;
-  }
+  jsonObj["temperature"] = temperature;
 
-  if(!isnan(tempEvent.relative_humidity))
-  {
-    Serial.print("Humidity: ");
-    Serial.print(tempEvent.relative_humidity);
-    Serial.println("%");
+  Serial.print("Humidity: ");
+  Serial.print(humidity);
+  Serial.println("%");
 
-    jsonObj["humidity"] = tempEvent.relative_humidity;
-  }
-  else
-  {
-    Serial.println("Error reading humidity!");
-    error = true;
-  }
-
-  if(error)
-  {
-    return;
-  }
+  jsonObj["humidity"] = humidity;
 
   jsonObj.printTo(result);
 

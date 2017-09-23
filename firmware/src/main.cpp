@@ -39,7 +39,7 @@ void setup()
   networkHealthTask = new app::NetworkHealthTask(networkHealthTaskPeriod);
   networkMessagingTask = new app::NetworkMessagingTask(
       networkHealthTask->client(), networkQueue, networkMessaginTaskPeriod);
-  sensorTask = new app::SensorTask(D3, DHT11, networkQueue, sensorTaskPeriod);
+  sensorTask = new app::SensorTask(D3, D2, networkQueue, sensorTaskPeriod);
 
   taskManager.StartTask(ledTask);
   taskManager.StartTask(sensorTask);
