@@ -54,7 +54,7 @@ class NetworkHealthTask : public Task
     System m_system;
     MqttClient::LoggerImpl<HardwareSerial> m_logger;
     MqttClient::NetworkClientImpl<VerifiedWifiClient> m_mqttNetwork;
-    MqttClient::ArrayBuffer<200> m_sendBuffer;
+    MqttClient::ArrayBuffer<256> m_sendBuffer;
     MqttClient::ArrayBuffer<128> m_recvBuffer;
     MqttClient::MessageHandlersImpl<1> m_msgHandlers;
     MqttClient::Options m_mqttOptions;

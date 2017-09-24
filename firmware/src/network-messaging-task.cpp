@@ -170,7 +170,7 @@ static std::vector<uint8_t> padData(const std::vector<uint8_t>& data)
 {
   std::vector<uint8_t> padded(data);
 
-  while(data.size() % 16 != 0)
+  while(padded.size() % 16 != 0)
   {
     padded.push_back(static_cast<uint8_t>(' '));
   }
