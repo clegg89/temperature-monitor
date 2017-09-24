@@ -37,7 +37,7 @@ bool SensorTask::OnStart()
 
   taskInterval = (taskInterval > 1000) ? taskInterval : 1000;
 
-  setTimeInterval(UsToTaskTime(taskInterval));
+  setTimeInterval(MsToTaskTime(taskInterval));
 
   return true;
 }
