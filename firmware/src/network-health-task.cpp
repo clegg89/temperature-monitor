@@ -22,10 +22,9 @@ uint32_t NetworkHealthTask::clientIdCount = 0;
 NetworkHealthTask::NetworkHealthTask(const uint32_t timeInterval)
   : Task(timeInterval), m_wifiClient(RootCaCertificate),
     m_logger(Serial), m_mqttNetwork(m_wifiClient, m_system),
-    m_mqttClient(std::make_shared<MqttClient>(m_mqttOptions, m_logger,
+    m_mqttClient(std::make_shared<MqttClient>(MqttClient::Options(), m_logger,
           m_system, m_mqttNetwork, m_sendBuffer, m_recvBuffer, m_msgHandlers))
 {
-  m_mqttOptions.commandTimeoutMs = 10 * 1000;
   m_mqttClientId = String(ESP.getChipId()) + String(clientIdCount++);
 }
 
@@ -168,6 +167,7 @@ void NetworkHealthTask::connectMqtt()
   {
     Serial.print("Error connecting to broker: ");
     Serial.println(result);
+    delay(500);
   }
   else
   {
