@@ -73,7 +73,7 @@ def on_message(mosq, obj, msg):
                     },
                 'time' : datetime.now(),
                 'fields' : {
-                    'value' : value
+                    'value' : float(value)
                     }
                 })
 
