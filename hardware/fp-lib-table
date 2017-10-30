@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name temperature-monitor)(type KiCad)(uri "$(KIPRJMOD)/lib_fp.pretty")(options "")(descr ""))
+  (lib (name ESP8266)(type KiCad)(uri "$(KIPRJMOD)/third_party/kicad-ESP8266/ESP8266.pretty")(options "")(descr ""))
+  (lib (name Tinkerforge)(type KiCad)(uri "$(KIPRJMOD)/third_party/kicad-libraries")(options "")(descr ""))
+)
